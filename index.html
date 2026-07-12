@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Menú">
+<meta name="theme-color" content="#1B2A20">
+<title>Menú semanal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#141A15;--paper:#F1F2EC;--pine:#1B2A20;--leaf:#3E7A4C;--plum:#7A2F46;--citrus:#E7B426;--line:#D6D8CE;--muted:#6E7568}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:Karla,-apple-system,system-ui,sans-serif;font-size:16px;line-height:1.45;padding-bottom:calc(84px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:"Bricolage Grotesque",Georgia,serif;letter-spacing:-.02em;margin:0}
+  header{position:sticky;top:0;z-index:20;background:var(--pine);color:#EFF2E9;padding:calc(14px + env(safe-area-inset-top)) 16px 14px}
+  header h1{font-size:22px;font-weight:800}
+  header p{margin:2px 0 0;font-size:12px;color:#9DB09F;letter-spacing:.08em;text-transform:uppercase}
+  main{padding:16px;max-width:640px;margin:0 auto}
+  .hide{display:none!important}
+  nav{position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;background:var(--pine);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  nav button{flex:1;background:none;border:0;color:#8FA391;font:inherit;font-size:11px;padding:8px 2px;border-radius:10px;cursor:pointer}
+  nav button .ic{display:block;font-size:19px;line-height:1.3}
+  nav button.on{color:var(--citrus);background:rgba(255,255,255,.07)}
+  .btn{font:inherit;font-weight:700;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);padding:11px 16px;border-radius:12px;cursor:pointer}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn.wide{display:block;width:100%;text-align:center}
+  .btn.sm{padding:7px 11px;font-size:13px;border-radius:9px}
+  .btn.danger{background:var(--plum);border-color:var(--plum);color:#fff}
+  .btn:active{transform:translateY(1px)}
+  input,select{font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%}
+  input:focus,select:focus{outline:2px solid var(--leaf);outline-offset:1px;border-color:var(--leaf)}
+  label{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
+  .row{display:flex;gap:8px}.row>*{flex:1}
+  .stack>*+*{margin-top:12px}
+  .note{font-size:13px;color:var(--muted)}
+  hr{border:0;border-top:1.5px dashed var(--line);margin:18px 0}
+
+  .daycard{background:#fff;border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+  .daycard h3{font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:9px 14px;background:#E7EAE1;color:var(--pine)}
+  .turno{border-top:1px solid var(--line);padding:9px 12px 11px}
+  .turno .lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .plate{display:flex;align-items:center;gap:8px;padding:4px 0}
+  .plate .name{flex:1;font-weight:500;font-size:15px}
+  .plate .name.warn::after{content:'●';color:var(--citrus);font-size:9px;vertical-align:middle;margin-left:6px}
+  .iconbtn{border:0;background:#EDEFE7;border-radius:8px;width:30px;height:30px;flex:none;font-size:14px;cursor:pointer;color:var(--pine)}
+  .iconbtn:active{background:var(--citrus)}
+  .addplate{border:1.5px dashed var(--line);background:none;border-radius:9px;width:100%;padding:6px;font:inherit;font-size:13px;color:var(--muted);cursor:pointer;margin-top:4px}
+
+  .dish{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px}
+  .dish .top{display:flex;align-items:center;gap:8px}
+  .dish h3{font-size:16px;flex:1}
+  .pill{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:99px;background:#E7EAE1;color:var(--pine);white-space:nowrap}
+  .pill.cena{background:#2C3A56;color:#DCE4F2}
+  .pill.ambos{background:var(--citrus);color:#3A2E05}
+  .ings{margin:7px 0 0;font-size:13px;color:var(--muted)}
+  .ings.vacio{color:var(--plum);font-weight:700}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+  .chip{font:inherit;font-size:12px;font-weight:700;padding:6px 11px;border-radius:99px;border:1.5px solid var(--line);background:#fff;cursor:pointer;color:var(--muted)}
+  .chip.on{background:var(--pine);color:var(--citrus);border-color:var(--pine)}
+
+  .ticket{background:#fff;border-radius:4px;padding:18px 16px 22px;box-shadow:0 1px 0 var(--line),0 10px 24px -18px rgba(0,0,0,.5)}
+  .sec{margin-top:16px}.sec:first-child{margin-top:0}
+  .sec h3{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--plum);border-bottom:1.5px dashed var(--line);padding-bottom:5px;margin-bottom:2px}
+  .item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #EEEFE8}
+  .item .box{width:22px;height:22px;flex:none;border:1.5px solid var(--pine);border-radius:6px;display:grid;place-items:center;font-size:13px;color:transparent;cursor:pointer;background:#fff}
+  .item.done .box{background:var(--pine);color:var(--citrus)}
+  .item .txt{flex:1;font-weight:500}
+  .item.done .txt{text-decoration:line-through;color:#A9AFA3}
+  .item .from{display:block;font-size:11px;color:var(--muted);font-weight:400}
+  .item .qty{font-family:"Bricolage Grotesque",serif;font-weight:700;font-variant-numeric:tabular-nums;min-width:54px;text-align:right}
+  .stepper{display:flex;gap:4px}
+  .stepper button{width:26px;height:26px;border:1.5px solid var(--line);background:#fff;border-radius:7px;font-size:14px;cursor:pointer;line-height:1}
+  .aviso{background:#FBF3DA;border:1.5px solid var(--citrus);border-radius:12px;padding:11px 13px;font-size:13px;margin-bottom:12px}
+  .empty{text-align:center;color:var(--muted);padding:34px 20px;border:2px dashed var(--line);border-radius:14px}
+  .empty strong{display:block;font-family:"Bricolage Grotesque",serif;font-size:18px;color:var(--ink);margin-bottom:4px}
+
+  .sheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;background:rgba(20,26,21,.45)}
+  .sheet .panel{background:var(--paper);width:100%;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom))}
+  .sheethead{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .sheethead h2{flex:1;font-size:20px}
+  .ingrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+  .ingrow input[data-k="name"]{flex:3}
+  .ingrow input[data-k="qty"]{flex:1;min-width:54px}
+  .ingrow select{flex:2;min-width:0}
+  .pickitem{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:11px;margin-bottom:6px;font:inherit;cursor:pointer}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:60;background:var(--pine);color:var(--citrus);padding:10px 16px;border-radius:99px;font-size:14px;font-weight:700}
+</style>
+</head>
+<body>
+<header><h1 id="title">Menú semanal</h1><p id="subtitle">Semana en marcha</p></header>
+
+<main>
+  <section id="v-menu">
+    <button class="btn wide" onclick="generarSemana()">Generar semana nueva</button>
+    <div id="menuList" style="margin-top:14px"></div>
+  </section>
+
+  <section id="v-platos" class="hide">
+    <input id="buscador" placeholder="Buscar plato o ingrediente…" oninput="render()">
+    <div class="chips" id="filtros"></div>
+    <button class="btn wide" style="margin-bottom:14px" onclick="editarPlato(null)">+ Añadir plato</button>
+    <div id="platosList"></div>
+  </section>
+
+  <section id="v-listas" class="hide">
+    <p class="note">Listas fijas que se suman a la compra cuando las activas: desayunos, limpieza, básicos…</p>
+    <button class="btn wide" style="margin:12px 0 14px" onclick="editarLista(null)">+ Nueva lista</button>
+    <div id="listasList"></div>
+  </section>
+
+  <section id="v-compra" class="hide">
+    <div id="avisoIngs"></div>
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn" onclick="enviarRecordatorios()">Enviar a Recordatorios</button>
+      <button class="btn ghost" onclick="anadirExtra()">+ Artículo</button>
+    </div>
+    <div id="compraList"></div>
+    <hr>
+    <button class="btn ghost wide sm" onclick="reiniciarTachados()">Destachar todo</button>
+  </section>
+
+  <section id="v-ajustes" class="hide">
+    <div class="stack">
+      <h2>Copia de seguridad</h2>
+      <p class="note">Guarda o recupera todos tus platos y listas en un archivo.</p>
+      <div class="row">
+        <button class="btn ghost" onclick="exportar()">Exportar</button>
+        <button class="btn ghost" onclick="document.getElementById('imp').click()">Importar</button>
+      </div>
+      <input type="file" id="imp" accept="application/json" class="hide" onchange="importar(event)">
+      <hr>
+      <div><label for="shortcutName">Nombre del Atajo</label>
+        <input id="shortcutName" placeholder="Compra" oninput="D.shortcut=this.value;guardar()">
+        <p class="note" style="margin-top:6px">Debe coincidir con el nombre del Atajo en la app Atajos.</p>
+      </div>
+      <hr>
+      <p class="note" id="stats"></p>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button id="t-menu" class="on" onclick="ir('menu')"><span class="ic">🗓</span>Menú</button>
+  <button id="t-platos" onclick="ir('platos')"><span class="ic">🍲</span>Platos</button>
+  <button id="t-listas" onclick="ir('listas')"><span class="ic">📌</span>Listas</button>
+  <button id="t-compra" onclick="ir('compra')"><span class="ic">🧾</span>Compra</button>
+  <button id="t-ajustes" onclick="ir('ajustes')"><span class="ic">⚙️</span>Ajustes</button>
+</nav>
+
+<script>
+const SEED = [{"n":"Ensalada","t":"comida","r":"primero"},{"n":"Gazpacho","t":"ambos","r":"primero"},{"n":"Lentejas","t":"comida","r":"primero"},{"n":"Sopa","t":"cena","r":"primero"},{"n":"Judías verdes","t":"cena","r":"primero"},{"n":"Pizzas","t":"cena","r":"primero"},{"n":"Tortilla francesa","t":"cena","r":"segundo"},{"n":"Crema de espinacas","t":"cena","r":"primero"},{"n":"Vichysoisse","t":"cena","r":"primero"},{"n":"Crema de guisantes","t":"cena","r":"primero"},{"n":"Crema de verduras","t":"cena","r":"primero"},{"n":"Huevos rellenos","t":"cena","r":"segundo"},{"n":"Huevo","t":"ambos","r":"segundo"},{"n":"Hamburguesa de atún","t":"cena","r":"cualquiera"},{"n":"Crema de calabacín","t":"cena","r":"primero"},{"n":"Crema de calabaza","t":"cena","r":"primero"},{"n":"Ensalada de pasta","t":"comida","r":"primero"},{"n":"Crema","t":"cena","r":"primero"},{"n":"Repollo","t":"cena","r":"primero"},{"n":"Arroz","t":"comida","r":"segundo"},{"n":"San jacobo","t":"cena","r":"segundo"},{"n":"Paninis","t":"cena","r":"primero"},{"n":"Acelgas","t":"cena","r":"primero"},{"n":"Tortilla de patata","t":"cena","r":"cualquiera"},{"n":"Merluza","t":"cena","r":"segundo"},{"n":"Fabada","t":"comida","r":"primero"},{"n":"Acedías","t":"cena","r":"segundo"},{"n":"Huevo frito","t":"cena","r":"segundo"},{"n":"Croquetas","t":"cena","r":"segundo"},{"n":"Sandwich mixto","t":"cena","r":"segundo"},{"n":"Salmorejo","t":"ambos","r":"primero"},{"n":"Verduras","t":"ambos","r":"primero"},{"n":"Ensalada de garbanzos","t":"comida","r":"primero"},{"n":"Dorada","t":"cena","r":"cualquiera"},{"n":"Sopa de pepino","t":"ambos","r":"primero"},{"n":"Cuscús","t":"comida","r":"segundo"},{"n":"Musaka","t":"comida","r":"primero"},{"n":"Patatas con costillas","t":"comida","r":"primero"},{"n":"Pisto con huevo","t":"ambos","r":"primero"},{"n":"Jamón","t":"ambos","r":"segundo"},{"n":"Espinacas","t":"ambos","r":"primero"},{"n":"Arroz a la cubana","t":"comida","r":"primero"},{"n":"Boquerones","t":"cena","r":"segundo"},{"n":"Espinacas con carne picada","t":"comida","r":"primero"},{"n":"Salmón","t":"cena","r":"segundo"},{"n":"Ensalada de pollo","t":"comida","r":"primero"},{"n":"Ramen","t":"cena","r":"primero"},{"n":"Lombarda","t":"cena","r":"primero"},{"n":"Quesadilla","t":"cena","r":"segundo"},{"n":"Filete de lomo","t":"comida","r":"segundo"},{"n":"Tortilla francesa rellena","t":"cena","r":"segundo"},{"n":"Bacalao con tomate","t":"comida","r":"primero"},{"n":"Guisantes","t":"ambos","r":"primero"},{"n":"Ensalada de judías","t":"comida","r":"primero"},{"n":"Kebab","t":"cena","r":"primero"},{"n":"Filetes de lomo","t":"ambos","r":"segundo"},{"n":"Queso","t":"cena","r":"segundo"},{"n":"Pimientos","t":"ambos","r":"segundo"},{"n":"Huevo duro","t":"comida","r":"segundo"},{"n":"Gambas","t":"ambos","r":"segundo"},{"n":"Espinacas rehogadas","t":"cena","r":"primero"},{"n":"Fideua de carne","t":"comida","r":"primero"},{"n":"Huevo frito moruno","t":"cena","r":"segundo"},{"n":"Tostas variadas","t":"cena","r":"segundo"},{"n":"Parmigiana","t":"cena","r":"primero"},{"n":"Salmón a la plancha","t":"cena","r":"cualquiera"},{"n":"Lenguados","t":"cena","r":"segundo"},{"n":"Poke de atún","t":"cena","r":"primero"},{"n":"Crema de zanahoria","t":"cena","r":"primero"},{"n":"Tosta de sardinas","t":"cena","r":"segundo"},{"n":"Tortilla de calabacín","t":"cena","r":"segundo"},{"n":"Pastel de atún","t":"ambos","r":"cualquiera"},{"n":"Pizza","t":"cena","r":"primero"},{"n":"Atún","t":"ambos","r":"segundo"},{"n":"Acelgas rehogadas","t":"cena","r":"primero"},{"n":"Ensalada de arroz","t":"comida","r":"primero"},{"n":"Melón con jamón","t":"comida","r":"primero"},{"n":"Filetes de pollo","t":"ambos","r":"segundo"},{"n":"Judias verdes","t":"cena","r":"primero"},{"n":"Salchichas frescas","t":"ambos","r":"segundo"},{"n":"Hamburguesa","t":"cena","r":"primero"},{"n":"Lasaña","t":"comida","r":"cualquiera"},{"n":"Lubina","t":"cena","r":"cualquiera"},{"n":"Verduras congeladas","t":"ambos","r":"primero"},{"n":"Tostas","t":"cena","r":"segundo"},{"n":"Ensalada campera","t":"comida","r":"primero"},{"n":"Coca de pimientos","t":"cena","r":"cualquiera"},{"n":"Filete","t":"comida","r":"segundo"},{"n":"Ensalada de patata","t":"comida","r":"primero"},{"n":"Patatas con bechamel","t":"comida","r":"primero"},{"n":"Filetes","t":"comida","r":"segundo"},{"n":"Ensalada de judias","t":"comida","r":"primero"},{"n":"Revuelto de gambas al ajillo","t":"cena","r":"segundo"},{"n":"Cuscus","t":"comida","r":"segundo"},{"n":"Filete de pollo","t":"ambos","r":"segundo"},{"n":"Alitas de pollo","t":"ambos","r":"segundo"},{"n":"Albóndigas","t":"comida","r":"cualquiera"},{"n":"Fideos orientales","t":"comida","r":"primero"},{"n":"Salchichas al vino","t":"ambos","r":"cualquiera"},{"n":"Perritos","t":"cena","r":"primero"},{"n":"Setas","t":"comida","r":"segundo"},{"n":"Salmón plancha","t":"cena","r":"segundo"},{"n":"Tacos de atún","t":"cena","r":"segundo"},{"n":"Aguacate","t":"cena","r":"segundo"},{"n":"Chuleta","t":"comida","r":"segundo"},{"n":"Arepas","t":"cena","r":"primero"},{"n":"Macarrones ginos","t":"comida","r":"primero"},{"n":"Patatas guisadas con garbanzos","t":"comida","r":"primero"},{"n":"Fajitas","t":"ambos","r":"primero"},{"n":"Pescado","t":"cena","r":"segundo"},{"n":"Lenguaditos","t":"cena","r":"segundo"},{"n":"Empanadillas","t":"cena","r":"cualquiera"},{"n":"Patatas al horno","t":"comida","r":"segundo"},{"n":"Sandwich club","t":"cena","r":"cualquiera"},{"n":"Arroz con picadillo","t":"comida","r":"primero"},{"n":"Huevos con salmorejo","t":"cena","r":"cualquiera"},{"n":"Carbonara","t":"comida","r":"primero"},{"n":"Cebolla","t":"ambos","r":"segundo"},{"n":"Espaguetis de ro","t":"comida","r":"primero"},{"n":"Puré de patata","t":"comida","r":"segundo"},{"n":"Huevo frito con patatas","t":"cena","r":"segundo"},{"n":"Arroz al horno","t":"comida","r":"primero"},{"n":"Pollo asado con patatas","t":"comida","r":"primero"},{"n":"Arroz con pollo","t":"comida","r":"primero"},{"n":"Patatas","t":"comida","r":"segundo"},{"n":"Pasta","t":"comida","r":"primero"},{"n":"Champis","t":"cena","r":"segundo"},{"n":"Verduras al horno","t":"ambos","r":"primero"},{"n":"Revuelto de setas","t":"cena","r":"segundo"},{"n":"Carbonara de sobrasada","t":"comida","r":"primero"},{"n":"Espaguetis con gulas","t":"comida","r":"primero"},{"n":"Pollo","t":"comida","r":"segundo"},{"n":"Tosta de sardinas ahumadas","t":"cena","r":"segundo"},{"n":"Curry de garbanzos con arroz","t":"comida","r":"primero"},{"n":"Huevos a la cazuela","t":"ambos","r":"primero"},{"n":"Crema fría de calabacín","t":"cena","r":"primero"},{"n":"Salchichas","t":"comida","r":"cualquiera"},{"n":"Alitas","t":"ambos","r":"segundo"},{"n":"Tortilla","t":"ambos","r":"segundo"},{"n":"Filetes de lomo con verduras","t":"comida","r":"primero"},{"n":"Cocido","t":"comida","r":"primero"},{"n":"Arroz con secreto","t":"comida","r":"primero"},{"n":"San jacobos","t":"cena","r":"segundo"},{"n":"Huevos","t":"comida","r":"segundo"},{"n":"Espagueti arrabiata","t":"comida","r":"primero"},{"n":"Ricotta","t":"comida","r":"segundo"},{"n":"Revuelto de gambas","t":"cena","r":"segundo"},{"n":"Judías verdes con patata","t":"cena","r":"primero"},{"n":"Merluza a la romana","t":"cena","r":"segundo"},{"n":"Tosta de aguacate","t":"cena","r":"segundo"},{"n":"Crema de coliflor","t":"cena","r":"primero"},{"n":"Cilantro","t":"comida","r":"segundo"},{"n":"Y ensalada","t":"comida","r":"segundo"},{"n":"Parmigiana de berenjena","t":"cena","r":"primero"},{"n":"Poké de atún","t":"cena","r":"primero"},{"n":"Albóndigas con arroz","t":"comida","r":"primero"},{"n":"Brocoli","t":"ambos","r":"primero"},{"n":"Tortilla de calabacin","t":"cena","r":"segundo"},{"n":"Alcachofas","t":"cena","r":"primero"},{"n":"Gulas","t":"ambos","r":"segundo"},{"n":"Panini","t":"cena","r":"cualquiera"},{"n":"Filetes rusos","t":"ambos","r":"segundo"},{"n":"Pollo asado","t":"comida","r":"primero"},{"n":"Espárragos blancos","t":"cena","r":"primero"},{"n":"Pera","t":"comida","r":"segundo"},{"n":"Costillas","t":"ambos","r":"segundo"},{"n":"Lomo","t":"ambos","r":"segundo"},{"n":"Tortilla rellena","t":"cena","r":"segundo"},{"n":"Berenjena rellena","t":"ambos","r":"primero"},{"n":"Focaccia","t":"cena","r":"cualquiera"},{"n":"Gallos","t":"cena","r":"segundo"},{"n":"Hamburguesas","t":"ambos","r":"primero"},{"n":"Sardinas","t":"cena","r":"segundo"},{"n":"Sardinas en escabeche","t":"cena","r":"segundo"},{"n":"Serranito","t":"cena","r":"segundo"},{"n":"Fideuá de carne","t":"comida","r":"primero"},{"n":"Pasta arrabiata","t":"comida","r":"primero"},{"n":"Poke de salmón","t":"ambos","r":"cualquiera"},{"n":"Filete de lomo con patatas","t":"ambos","r":"segundo"},{"n":"Papas con choco","t":"comida","r":"cualquiera"},{"n":"Filete ruso","t":"comida","r":"cualquiera"},{"n":"Pimientos rellenos","t":"ambos","r":"cualquiera"},{"n":"Sopa de tomate","t":"cena","r":"primero"},{"n":"Carne guisada con puré de patata","t":"comida","r":"cualquiera"},{"n":"Pollo en escabeche","t":"comida","r":"cualquiera"},{"n":"Boquerones en escabeche","t":"ambos","r":"segundo"},{"n":"Pastel de puerros foodtropia","t":"cena","r":"segundo"},{"n":"Patata","t":"comida","r":"segundo"},{"n":"Carne guisada con arroz","t":"comida","r":"cualquiera"},{"n":"Calamares con arroz","t":"comida","r":"cualquiera"},{"n":"Escalivada","t":"ambos","r":"cualquiera"},{"n":"Bocadillo de tortilla","t":"cena","r":"primero"},{"n":"Kebab de pollo","t":"ambos","r":"cualquiera"},{"n":"Crema de brocoli","t":"cena","r":"primero"},{"n":"Merluza al horno","t":"cena","r":"segundo"},{"n":"Tosta de huevo","t":"cena","r":"segundo"},{"n":"Chorizo","t":"comida","r":"cualquiera"},{"n":"Pasta boloñesa","t":"comida","r":"primero"},{"n":"Crema de calabacin","t":"cena","r":"primero"},{"n":"Pasta con gambas","t":"comida","r":"primero"},{"n":"Cherrys","t":"comida","r":"segundo"},{"n":"Gyozas","t":"cena","r":"segundo"},{"n":"Kebab de chuleta","t":"ambos","r":"primero"},{"n":"Sopa de fideos","t":"cena","r":"primero"},{"n":"Wrap","t":"cena","r":"cualquiera"},{"n":"Judiones","t":"comida","r":"primero"},{"n":"Arroz con longaniza","t":"comida","r":"primero"},{"n":"Cerdo","t":"comida","r":"segundo"},{"n":"Alcachofas con jamón","t":"cena","r":"primero"},{"n":"Carne a la riojana con puré de patata","t":"comida","r":"cualquiera"},{"n":"Quesadillas","t":"cena","r":"segundo"},{"n":"Verduras al horno con cuscús","t":"comida","r":"primero"},{"n":"Vasito de arroz","t":"comida","r":"segundo"},{"n":"Salchichas al vino con arroz","t":"comida","r":"segundo"},{"n":"Bacalao al horno","t":"cena","r":"segundo"},{"n":"Bocadillo","t":"ambos","r":"primero"},{"n":"Pollo al horno","t":"ambos","r":"cualquiera"},{"n":"Ensalada de lentejas","t":"comida","r":"primero"},{"n":"Albóndigas con puré de patata","t":"comida","r":"cualquiera"},{"n":"Pollo hainan","t":"comida","r":"cualquiera"},{"n":"Remolacha","t":"ambos","r":"segundo"},{"n":"Pimientos asados","t":"comida","r":"segundo"},{"n":"Berenjenas rellenas","t":"comida","r":"primero"},{"n":"Fideos orientales con pollo","t":"comida","r":"primero"},{"n":"Fideos con curry","t":"ambos","r":"primero"},{"n":"Salmorejo con huevo","t":"comida","r":"primero"},{"n":"Pinchitos","t":"ambos","r":"segundo"},{"n":"Bocadillo de longaniza","t":"cena","r":"cualquiera"},{"n":"Fideos chinos","t":"cena","r":"primero"},{"n":"Papas aliñas","t":"comida","r":"primero"},{"n":"Wrap jamón","t":"cena","r":"segundo"},{"n":"Wrap de atún","t":"cena","r":"segundo"},{"n":"Pollo con patatas","t":"comida","r":"primero"},{"n":"Pasta con calabacín","t":"comida","r":"cualquiera"},{"n":"Ropa vieja","t":"comida","r":"primero"},{"n":"Pollo hanan con arroz","t":"comida","r":"primero"},{"n":"Montadito de lomo","t":"cena","r":"segundo"},{"n":"Arroz con calamares","t":"comida","r":"primero"},{"n":"Crema calabacín","t":"cena","r":"primero"},{"n":"Arroz con acelgas","t":"comida","r":"primero"},{"n":"Alubias sofía","t":"comida","r":"segundo"},{"n":"Costillas con patatas","t":"comida","r":"cualquiera"},{"n":"Judías","t":"comida","r":"primero"},{"n":"Calamarcitos","t":"cena","r":"segundo"},{"n":"Filetes de pollo con verduras","t":"comida","r":"cualquiera"},{"n":"Huevos al plato","t":"cena","r":"primero"},{"n":"Merluza coqui","t":"cena","r":"segundo"},{"n":"Huevos rotos con jamón","t":"comida","r":"segundo"},{"n":"Espagueti con burrata","t":"comida","r":"primero"},{"n":"Tomates asados","t":"comida","r":"segundo"},{"n":"Albahaca","t":"comida","r":"segundo"},{"n":"Bocadillo de longaniza con pimientos","t":"cena","r":"segundo"},{"n":"Risotto de setas","t":"comida","r":"primero"},{"n":"Huevos al purgatorio","t":"comida","r":"primero"},{"n":"Sandwich mixto con huevo","t":"cena","r":"segundo"},{"n":"Lima","t":"comida","r":"segundo"},{"n":"Patatas guisadas con costillas","t":"comida","r":"primero"},{"n":"Fideua de atún","t":"comida","r":"cualquiera"},{"n":"Langostinos","t":"ambos","r":"segundo"},{"n":"Y huevo","t":"comida","r":"segundo"},{"n":"Macheroni antonioni","t":"comida","r":"primero"},{"n":"Espaguetis con langostinos","t":"comida","r":"primero"},{"n":"Albóndigas con puré","t":"comida","r":"primero"},{"n":"Papas aliñadas","t":"comida","r":"primero"},{"n":"Perritos calientes","t":"cena","r":"primero"},{"n":"Alitas de pollo con patatas","t":"cena","r":"primero"},{"n":"Caballas","t":"cena","r":"cualquiera"},{"n":"Judias verdes con garbanzos","t":"comida","r":"primero"},{"n":"Pollo con verduras","t":"comida","r":"cualquiera"},{"n":"Sándwich vips club","t":"cena","r":"primero"},{"n":"Smash burger","t":"cena","r":"primero"},{"n":"Bocata de calamares","t":"cena","r":"segundo"},{"n":"Garbanzos","t":"comida","r":"cualquiera"},{"n":"Poké de salmón","t":"cena","r":"primero"},{"n":"Hamburguesa de atun","t":"cena","r":"cualquiera"},{"n":"Wrap instagram","t":"cena","r":"cualquiera"},{"n":"Tosta de atún","t":"cena","r":"segundo"},{"n":"Garbanzos con huevo","t":"comida","r":"segundo"},{"n":"Fajitas de pollo","t":"comida","r":"primero"},{"n":"Bocata calamiros","t":"cena","r":"primero"},{"n":"Ensalada pasta","t":"comida","r":"primero"},{"n":"Fideua de pescado","t":"comida","r":"primero"},{"n":"Carne picada","t":"comida","r":"primero"},{"n":"Espinacas gratinadas","t":"comida","r":"primero"},{"n":"Ensalada de judías con huevo","t":"comida","r":"primero"},{"n":"Empanada de diego","t":"cena","r":"segundo"},{"n":"Smashi","t":"cena","r":"primero"},{"n":"Papas aliñadas con gazpacho","t":"comida","r":"primero"},{"n":"Carne a la riojana","t":"comida","r":"cualquiera"},{"n":"Queso feta","t":"comida","r":"segundo"},{"n":"Mozarella","t":"comida","r":"segundo"},{"n":"Anchoas","t":"cena","r":"segundo"},{"n":"Espaguetis boloñesa","t":"comida","r":"primero"},{"n":"Espagueti boloñesa","t":"comida","r":"primero"},{"n":"Tortilla de patatas","t":"cena","r":"primero"},{"n":"Fideos con caballa","t":"comida","r":"primero"},{"n":"Ensalada de alubias blancas","t":"comida","r":"primero"},{"n":"Ensalada falafel","t":"comida","r":"primero"},{"n":"Boniato al horno","t":"cena","r":"segundo"},{"n":"Cuscús con verduras","t":"comida","r":"primero"},{"n":"Crema calabaza","t":"cena","r":"primero"},{"n":"Huevos a la sartén","t":"comida","r":"primero"},{"n":"Fideos orientales con verduras","t":"comida","r":"primero"},{"n":"Pasta con puerro","t":"comida","r":"cualquiera"},{"n":"Parmesano","t":"comida","r":"segundo"},{"n":"Caballa aliñada","t":"cena","r":"segundo"},{"n":"Wrap de ensalada cesar","t":"cena","r":"segundo"},{"n":"Ensalada templada de judías","t":"comida","r":"primero"},{"n":"Atún a la plancha","t":"ambos","r":"segundo"},{"n":"Muffins salados","t":"cena","r":"segundo"},{"n":"Verduras con soja","t":"cena","r":"primero"},{"n":"Tosta de caballa","t":"cena","r":"segundo"},{"n":"Rucula","t":"comida","r":"segundo"},{"n":"Fideua","t":"comida","r":"primero"},{"n":"Ensalada campera con huevo","t":"comida","r":"primero"},{"n":"Solomillo con verduras congeladas","t":"comida","r":"primero"},{"n":"Taco de atún","t":"cena","r":"segundo"},{"n":"Crema verduras","t":"cena","r":"primero"},{"n":"Ajetes","t":"ambos","r":"segundo"},{"n":"Quinoa","t":"comida","r":"segundo"},{"n":"Guisantes con champis","t":"cena","r":"primero"},{"n":"Ensalada de alubias (aguacate","t":"comida","r":"primero"},{"n":"Pimiento","t":"comida","r":"segundo"},{"n":"Aceitunas negras","t":"comida","r":"segundo"},{"n":"Huevo)","t":"comida","r":"segundo"},{"n":"Bocadillo sardinas","t":"cena","r":"segundo"},{"n":"Pimientos con bacalao","t":"cena","r":"segundo"},{"n":"Espaguetis con tomate","t":"comida","r":"primero"},{"n":"Tosta sardinas","t":"cena","r":"segundo"},{"n":"Arroz de marisco","t":"comida","r":"primero"},{"n":"Tosta de sardina ahumada con gorgonzola","t":"cena","r":"segundo"},{"n":"Revuelto de ajetes","t":"cena","r":"primero"},{"n":"Huevo frito con patatas al horno","t":"cena","r":"cualquiera"},{"n":"Macarrones boloñesa","t":"comida","r":"primero"},{"n":"Patata asada","t":"comida","r":"segundo"},{"n":"Merluza romana","t":"cena","r":"segundo"},{"n":"Espaguetis con gambas","t":"comida","r":"primero"},{"n":"Pollo al curry","t":"comida","r":"primero"},{"n":"Brioche de atún","t":"cena","r":"segundo"},{"n":"Gazpacho de sandia","t":"comida","r":"primero"},{"n":"Boquerones chicote","t":"cena","r":"segundo"},{"n":"Cinta de lomo con arroz","t":"comida","r":"primero"},{"n":"Boquerones fritos","t":"cena","r":"segundo"},{"n":"Carne sorpresa con patatas","t":"comida","r":"primero"},{"n":"Calamares en salsa con arroz","t":"comida","r":"primero"},{"n":"Pollo al curry con fideos","t":"comida","r":"primero"},{"n":"Rúcula","t":"ambos","r":"segundo"},{"n":"Judías pinta","t":"comida","r":"primero"},{"n":"Pasta con tomate","t":"comida","r":"cualquiera"},{"n":"Libritos de berenjena","t":"cena","r":"segundo"},{"n":"Garbanzos con chorizo","t":"comida","r":"primero"},{"n":"Espagueti carbonara","t":"comida","r":"primero"},{"n":"Albóndigas suecas con puré de patata","t":"comida","r":"cualquiera"},{"n":"Garbanzos con costillas","t":"comida","r":"primero"},{"n":"Paella de marisco","t":"comida","r":"segundo"},{"n":"Pollo al curry con verduras","t":"comida","r":"primero"},{"n":"Bacon","t":"comida","r":"segundo"},{"n":"Gorgonzola","t":"ambos","r":"segundo"},{"n":"Ensalada de judías blancas","t":"comida","r":"primero"},{"n":"Ensalada de patata con caballa","t":"comida","r":"primero"},{"n":"Parmiggiana de berenjena","t":"comida","r":"segundo"},{"n":"Alcachofas con huevo","t":"cena","r":"primero"},{"n":"Atún con tomate","t":"comida","r":"segundo"},{"n":"Papas aliñás","t":"comida","r":"primero"},{"n":"Fideos con setas","t":"comida","r":"segundo"},{"n":"Longaniza","t":"comida","r":"segundo"},{"n":"Espárragos","t":"cena","r":"primero"},{"n":"Pollo en escabeche con patatas","t":"comida","r":"primero"},{"n":"Raviolis","t":"comida","r":"primero"},{"n":"Wrap de pollo","t":"cena","r":"segundo"}];
+
+const KEY='menu-semanal-v2';
+const store={
+  async get(){ try{ if(window.storage){const r=await window.storage.get(KEY);return r?JSON.parse(r.value):null;} }catch(e){return null;}
+    const raw=localStorage.getItem(KEY); return raw?JSON.parse(raw):null; },
+  async set(v){ const s=JSON.stringify(v);
+    try{ if(window.storage){await window.storage.set(KEY,s);return;} }catch(e){}
+    localStorage.setItem(KEY,s); }
+};
+
+const DIAS=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const CATS=['Frutas y verduras','Carnicería','Pescadería','Lácteos y huevos','Panadería','Despensa','Congelados','Bebidas','Limpieza y hogar','Otros'];
+const UNIDS=['ud','g','kg','ml','l','lata','paquete','manojo','al gusto'];
+const uid=()=>Math.random().toString(36).slice(2,9);
+const ing=(name,qty,unit,cat)=>({id:uid(),name,qty,unit,cat});
+
+let D={
+  platos: SEED.map(d=>({id:uid(),nombre:d.n,tipo:d.t,rol:d.r,ings:[]})),
+  listas: [{id:uid(),nombre:'Desayunos',activa:false,items:[ing('Leche',4,'l','Lácteos y huevos'),ing('Café molido',1,'paquete','Despensa'),ing('Pan de molde',1,'paquete','Panadería')]}],
+  menu:{}, extras:[], tachados:{}, ajustes:{}, shortcut:'Compra'
+};
+const guardar=()=>store.set(D);
+
+let vista='menu', filtro='todos';
+function ir(v){
+  vista=v;
+  ['menu','platos','listas','compra','ajustes'].forEach(k=>{
+    document.getElementById('v-'+k).classList.toggle('hide',k!==v);
+    document.getElementById('t-'+k).classList.toggle('on',k===v);
+  });
+  const tit={menu:['Menú semanal','Semana en marcha'],platos:['Platos','Tu recetario'],listas:['Listas fijas','Se suman a la compra'],compra:['La compra','Por secciones del súper'],ajustes:['Ajustes','Copias y Atajos']};
+  document.getElementById('title').textContent=tit[v][0];
+  document.getElementById('subtitle').textContent=tit[v][1];
+  window.scrollTo(0,0); render();
+}
+
+/* ─── Menú ─── */
+const encaja=(p,t)=>p.tipo===t||p.tipo==='ambos';
+const slotArr=k=>Array.isArray(D.menu[k])?D.menu[k]:[];
+
+function elegirAlAzar(turno,rol,excluir){
+  let c=D.platos.filter(p=>encaja(p,turno)&&(rol==='any'||p.rol===rol||p.rol==='cualquiera')&&!excluir.includes(p.id));
+  if(!c.length) c=D.platos.filter(p=>encaja(p,turno)&&!excluir.includes(p.id));
+  if(!c.length) return null;
+  return c[Math.floor(Math.random()*c.length)].id;
+}
+function generarSemana(){
+  const nuevo={}, usados=[];
+  DIAS.forEach(d=>['comida','cena'].forEach(t=>{
+    const a=elegirAlAzar(t,'primero',usados); if(a) usados.push(a);
+    const b=elegirAlAzar(t,'segundo',usados); if(b) usados.push(b);
+    nuevo[d+'-'+t]=[a,b].filter(Boolean);
+  }));
+  D.menu=nuevo; D.tachados={}; D.ajustes={};
+  guardar(); render(); toast('Semana generada');
+}
+function rerollPlato(k,i){
+  const p=D.platos.find(x=>x.id===slotArr(k)[i]);
+  const nuevo=elegirAlAzar(k.split('-')[1], p?p.rol:'any', Object.values(D.menu).flat());
+  if(!nuevo) return toast('No hay más platos');
+  D.menu[k][i]=nuevo; guardar(); render();
+}
+function quitarPlato(k,i){ D.menu[k].splice(i,1); guardar(); render(); }
+function abrirPicker(k,i){
+  const turno=k.split('-')[1];
+  window._pick={k,i};
+  sheet(`<div class="sheethead"><h2>${i===null?'Añadir plato':'Cambiar plato'}</h2><button class="btn ghost sm" onclick="cerrarSheet()">Cerrar</button></div>
+    <input id="bp" placeholder="Buscar entre tus platos…" oninput="filtrarPick()">
+    <div id="picklist" style="margin-top:10px;max-height:52vh;overflow:auto"></div>`);
+  window._pickLista=D.platos.filter(p=>encaja(p,turno));
+  filtrarPick();
+}
+function filtrarPick(){
+  const q=(document.getElementById('bp').value||'').toLowerCase();
+  const l=window._pickLista.filter(p=>p.nombre.toLowerCase().includes(q)).slice(0,80);
+  document.getElementById('picklist').innerHTML = l.length
+    ? l.map(p=>`<button class="pickitem" onclick="ponerPlato('${p.id}')"><b>${esc(p.nombre)}</b> <span class="note">· ${p.rol}</span></button>`).join('')
+    : '<p class="note">Ningún plato coincide.</p>';
+}
+function ponerPlato(id){
+  const {k,i}=window._pick;
+  if(!Array.isArray(D.menu[k])) D.menu[k]=[];
+  if(i===null) D.menu[k].push(id); else D.menu[k][i]=id;
+  guardar(); cerrarSheet(); render();
+}
+function pintarMenu(){
+  const el=document.getElementById('menuList');
+  if(!Object.keys(D.menu).length){
+    el.innerHTML='<div class="empty"><strong>Aún no hay semana</strong>Pulsa “Generar semana nueva”. Luego cambia, quita o añade platos en cada hueco.</div>';
+    return;
+  }
+  el.innerHTML=DIAS.map(d=>`<div class="daycard"><h3>${d}</h3>
+    ${['comida','cena'].map(t=>{
+      const k=d+'-'+t, arr=slotArr(k);
+      return `<div class="turno"><div class="lbl">${t}</div>
+        ${arr.map((pid,i)=>{
+          const p=D.platos.find(x=>x.id===pid);
+          if(!p) return '';
+          return `<div class="plate">
+            <span class="name ${p.ings.length?'':'warn'}">${esc(p.nombre)}</span>
+            <button class="iconbtn" onclick="rerollPlato('${k}',${i})">🎲</button>
+            <button class="iconbtn" onclick="abrirPicker('${k}',${i})">✎</button>
+            <button class="iconbtn" onclick="quitarPlato('${k}',${i})">×</button></div>`;
+        }).join('')}
+        <button class="addplate" onclick="abrirPicker('${k}',null)">+ añadir plato</button>
+      </div>`;
+    }).join('')}</div>`).join('');
+}
+
+/* ─── Platos ─── */
+function pintarPlatos(){
+  document.getElementById('filtros').innerHTML=[['todos','Todos'],['sinings','Sin ingredientes'],['comida','Comida'],['cena','Cena']]
+    .map(([k,l])=>`<button class="chip ${filtro===k?'on':''}" onclick="filtro='${k}';render()">${l}</button>`).join('');
+  const q=(document.getElementById('buscador').value||'').toLowerCase();
+  let l=D.platos.filter(p=>p.nombre.toLowerCase().includes(q)||p.ings.some(i=>i.name.toLowerCase().includes(q)));
+  if(filtro==='sinings') l=l.filter(p=>!p.ings.length);
+  if(filtro==='comida') l=l.filter(p=>p.tipo!=='cena');
+  if(filtro==='cena') l=l.filter(p=>p.tipo!=='comida');
+  const total=l.length;
+  document.getElementById('platosList').innerHTML = total ? (
+    `<p class="note" style="margin:0 0 8px">${total} plato${total>1?'s':''}</p>` +
+    l.slice(0,120).map(p=>`<div class="dish"><div class="top">
+      <h3>${esc(p.nombre)}</h3><span class="pill ${p.tipo}">${p.tipo}</span>
+      <button class="iconbtn" onclick="editarPlato('${p.id}')">✎</button></div>
+      <p class="ings ${p.ings.length?'':'vacio'}">${p.ings.length
+        ? p.ings.map(i=>`${esc(i.name)} ${redondea(i.qty)}${i.unit==='ud'?'':' '+i.unit}`).join(' · ')
+        : 'Sin ingredientes — no cuenta en la compra'}</p></div>`).join('') +
+    (total>120?'<p class="note">Solo se muestran los 120 primeros. Usa el buscador.</p>':'')
+  ) : '<div class="empty"><strong>Nada por aquí</strong>Ningún plato coincide.</div>';
+}
+function editarPlato(id){
+  const p=D.platos.find(x=>x.id===id)||{id:null,nombre:'',tipo:'comida',rol:'cualquiera',ings:[]};
+  window._ed=JSON.parse(JSON.stringify(p));
+  if(!window._ed.ings.length) window._ed.ings.push(ing('',1,'ud','Frutas y verduras'));
+  sheet(`<div class="sheethead"><h2>${id?'Editar plato':'Nuevo plato'}</h2><button class="btn ghost sm" onclick="cerrarSheet()">Cerrar</button></div>
+  <div class="stack">
+    <div><label>Nombre</label><input id="e-nombre" value="${esc(p.nombre)}" placeholder="Lentejas"></div>
+    <div class="row">
+      <div><label>Cuándo</label><select id="e-tipo">
+        <option value="comida" ${p.tipo==='comida'?'selected':''}>Comida</option>
+        <option value="cena" ${p.tipo==='cena'?'selected':''}>Cena</option>
+        <option value="ambos" ${p.tipo==='ambos'?'selected':''}>Cualquiera</option></select></div>
+      <div><label>Rol</label><select id="e-rol">
+        <option value="primero" ${p.rol==='primero'?'selected':''}>Primero</option>
+        <option value="segundo" ${p.rol==='segundo'?'selected':''}>Segundo</option>
+        <option value="cualquiera" ${p.rol==='cualquiera'?'selected':''}>Indiferente</option></select></div>
+    </div>
+    <div><label>Ingredientes</label><div id="e-ings"></div>
+      <button class="btn ghost sm" style="margin-top:6px" onclick="addIng()">+ Ingrediente</button></div>
+    <button class="btn wide" onclick="guardarPlato('${id||''}')">Guardar plato</button>
+    ${id?`<button class="btn danger wide sm" onclick="borrarPlato('${id}')">Eliminar plato</button>`:''}
+  </div>`);
+  pintarIngs();
+}
+function pintarIngs(){
+  document.getElementById('e-ings').innerHTML=window._ed.ings.map((i,n)=>`<div class="ingrow">
+    <input data-k="name" value="${esc(i.name)}" placeholder="Ingrediente" oninput="setIng(${n},'name',this.value)">
+    <input data-k="qty" type="number" inputmode="decimal" min="0" step="any" value="${i.qty}" oninput="setIng(${n},'qty',this.value)">
+    <select onchange="setIng(${n},'unit',this.value)">${UNIDS.map(u=>`<option ${i.unit===u?'selected':''}>${u}</option>`).join('')}</select>
+    <select onchange="setIng(${n},'cat',this.value)">${CATS.map(c=>`<option ${i.cat===c?'selected':''}>${c}</option>`).join('')}</select>
+    <button class="iconbtn" onclick="delIng(${n})">×</button></div>`).join('');
+}
+const setIng=(n,k,v)=>{ window._ed.ings[n][k]= k==='qty' ? (parseFloat(v)||0) : v; };
+const addIng=()=>{ window._ed.ings.push(ing('',1,'ud','Frutas y verduras')); pintarIngs(); };
+const delIng=n=>{ window._ed.ings.splice(n,1); pintarIngs(); };
+function guardarPlato(id){
+  const nombre=document.getElementById('e-nombre').value.trim();
+  if(!nombre) return toast('Ponle un nombre');
+  const plato={id:id||uid(),nombre,tipo:document.getElementById('e-tipo').value,rol:document.getElementById('e-rol').value,
+    ings:window._ed.ings.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()}))};
+  const n=D.platos.findIndex(x=>x.id===id);
+  if(n>=0) D.platos[n]=plato; else D.platos.unshift(plato);
+  guardar(); cerrarSheet(); render(); toast('Plato guardado');
+}
+function borrarPlato(id){
+  if(!confirm('¿Eliminar este plato? También saldrá del menú.')) return;
+  D.platos=D.platos.filter(p=>p.id!==id);
+  Object.keys(D.menu).forEach(k=>{ D.menu[k]=slotArr(k).filter(x=>x!==id); });
+  guardar(); cerrarSheet(); render();
+}
+
+/* ─── Listas ─── */
+function pintarListas(){
+  document.getElementById('listasList').innerHTML = D.listas.length ? D.listas.map(l=>`<div class="dish"><div class="top">
+    <span class="box item ${l.activa?'done':''}" style="width:22px;height:22px;border:1.5px solid var(--pine);border-radius:6px;display:grid;place-items:center;cursor:pointer;font-size:13px;color:${l.activa?'var(--citrus)':'transparent'};background:${l.activa?'var(--pine)':'#fff'}" onclick="toggleLista('${l.id}')">✓</span>
+    <h3>${esc(l.nombre)}</h3><button class="iconbtn" onclick="editarLista('${l.id}')">✎</button></div>
+    <p class="ings">${l.items.map(i=>esc(i.name)).join(' · ')||'Vacía'}</p></div>`).join('')
+    : '<div class="empty"><strong>Sin listas fijas</strong>Crea una para lo que compras todas las semanas.</div>';
+}
+const toggleLista=id=>{ const l=D.listas.find(x=>x.id===id); l.activa=!l.activa; guardar(); render(); };
+function editarLista(id){
+  const l=D.listas.find(x=>x.id===id)||{id:null,nombre:'',activa:true,items:[]};
+  window._ed={ings:JSON.parse(JSON.stringify(l.items||[]))};
+  if(!window._ed.ings.length) window._ed.ings.push(ing('',1,'ud','Despensa'));
+  sheet(`<div class="sheethead"><h2>${id?'Editar lista':'Nueva lista'}</h2><button class="btn ghost sm" onclick="cerrarSheet()">Cerrar</button></div>
+  <div class="stack">
+    <div><label>Nombre</label><input id="e-nombre" value="${esc(l.nombre)}" placeholder="Desayunos"></div>
+    <div><label>Artículos</label><div id="e-ings"></div>
+      <button class="btn ghost sm" style="margin-top:6px" onclick="addIng()">+ Artículo</button></div>
+    <button class="btn wide" onclick="guardarLista('${id||''}')">Guardar lista</button>
+    ${id?`<button class="btn danger wide sm" onclick="borrarLista('${id}')">Eliminar lista</button>`:''}
+  </div>`);
+  pintarIngs();
+}
+function guardarLista(id){
+  const nombre=document.getElementById('e-nombre').value.trim();
+  if(!nombre) return toast('Ponle un nombre');
+  const prev=D.listas.find(x=>x.id===id);
+  const lista={id:id||uid(),nombre,activa:prev?prev.activa:true,items:window._ed.ings.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()}))};
+  const n=D.listas.findIndex(x=>x.id===id);
+  if(n>=0) D.listas[n]=lista; else D.listas.push(lista);
+  guardar(); cerrarSheet(); render(); toast('Lista guardada');
+}
+function borrarLista(id){ if(!confirm('¿Eliminar esta lista?'))return; D.listas=D.listas.filter(l=>l.id!==id); guardar(); cerrarSheet(); render(); }
+
+/* ─── Compra ─── */
+function calcularCompra(){
+  const acc={};
+  const sumar=(i,origen)=>{
+    const k=i.name.toLowerCase()+'|'+i.unit;
+    if(!acc[k]) acc[k]={clave:k,name:i.name,unit:i.unit,cat:i.cat,qty:0,origenes:new Set()};
+    acc[k].qty+=Number(i.qty)||0; acc[k].origenes.add(origen);
+  };
+  Object.values(D.menu).flat().forEach(pid=>{
+    const p=D.platos.find(x=>x.id===pid);
+    if(p) p.ings.forEach(i=>sumar(i,p.nombre));
+  });
+  D.listas.filter(l=>l.activa).forEach(l=>l.items.forEach(i=>sumar(i,l.nombre)));
+  D.extras.forEach(i=>sumar(i,'Añadido a mano'));
+  return Object.values(acc).map(x=>({...x,qty:D.ajustes[x.clave]!==undefined?D.ajustes[x.clave]:x.qty,origenes:[...x.origenes]}));
+}
+function pintarCompra(){
+  const sin=[...new Set(Object.values(D.menu).flat())].map(id=>D.platos.find(p=>p.id===id)).filter(p=>p&&!p.ings.length);
+  document.getElementById('avisoIngs').innerHTML = sin.length
+    ? `<div class="aviso"><b>${sin.length} plato${sin.length>1?'s':''} del menú sin ingredientes</b> y por tanto no cuentan en la compra. Rellénalos en Platos → filtro “Sin ingredientes”.</div>` : '';
+  const items=calcularCompra(), el=document.getElementById('compraList');
+  if(!items.length){ el.innerHTML='<div class="empty"><strong>Lista vacía</strong>Rellena ingredientes de tus platos o activa una lista fija.</div>'; return; }
+  const porCat={}; items.forEach(i=>{ (porCat[i.cat] ||= []).push(i); });
+  el.innerHTML='<div class="ticket">'+CATS.filter(c=>porCat[c]).map(c=>`<div class="sec"><h3>${c}</h3>
+    ${porCat[c].sort((a,b)=>a.name.localeCompare(b.name)).map(i=>`<div class="item ${D.tachados[i.clave]?'done':''}">
+      <span class="box" onclick="tachar('${i.clave}')">✓</span>
+      <span class="txt" onclick="tachar('${i.clave}')">${esc(i.name)}<span class="from">${i.origenes.map(esc).join(', ')}</span></span>
+      <span class="stepper"><button onclick="ajustar('${i.clave}',-1,${i.qty})">−</button><button onclick="ajustar('${i.clave}',1,${i.qty})">+</button></span>
+      <span class="qty">${redondea(i.qty)} ${i.unit==='ud'?'':esc(i.unit)}</span></div>`).join('')}</div>`).join('')+'</div>';
+}
+const redondea=n=>Math.round(n*100)/100;
+const tachar=k=>{ D.tachados[k]=!D.tachados[k]; guardar(); pintarCompra(); };
+function ajustar(k,d,actual){ const paso=actual>=100?50:1; D.ajustes[k]=Math.max(0,redondea(actual+d*paso)); guardar(); pintarCompra(); }
+const reiniciarTachados=()=>{ D.tachados={}; guardar(); pintarCompra(); };
+function anadirExtra(){
+  window._ed={ings:[ing('',1,'ud','Otros')]};
+  sheet(`<div class="sheethead"><h2>Añadir a la compra</h2><button class="btn ghost sm" onclick="cerrarSheet()">Cerrar</button></div>
+  <div id="e-ings"></div>
+  <button class="btn ghost sm" style="margin:6px 0 12px" onclick="addIng()">+ Otro más</button>
+  <button class="btn wide" onclick="guardarExtras()">Añadir a la lista</button>
+  ${D.extras.length?`<button class="btn ghost wide sm" style="margin-top:8px" onclick="limpiarExtras()">Quitar los ${D.extras.length} añadidos a mano</button>`:''}`);
+  pintarIngs();
+}
+function guardarExtras(){
+  const n=window._ed.ings.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()}));
+  if(!n.length) return toast('Escribe algo primero');
+  D.extras.push(...n); guardar(); cerrarSheet(); render(); toast('Añadido');
+}
+const limpiarExtras=()=>{ D.extras=[]; guardar(); cerrarSheet(); render(); };
+
+function enviarRecordatorios(){
+  const items=calcularCompra().filter(i=>!D.tachados[i.clave]);
+  if(!items.length) return toast('No hay nada que enviar');
+  const porCat={}; items.forEach(i=>{ (porCat[i.cat] ||= []).push(i); });
+  const txt=CATS.filter(c=>porCat[c]).flatMap(c=>porCat[c].sort((a,b)=>a.name.localeCompare(b.name))
+    .map(i=>`${c} · ${i.name} — ${redondea(i.qty)}${i.unit==='ud'?'':' '+i.unit}`)).join('\n');
+  window.location.href=`shortcuts://run-shortcut?name=${encodeURIComponent(D.shortcut||'Compra')}&input=text&text=${encodeURIComponent(txt)}`;
+}
+
+function exportar(){
+  const b=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='menu-semanal.json'; a.click();
+}
+function importar(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ const d=JSON.parse(r.result); if(!d.platos) throw 0; D={...D,...d}; guardar(); render(); toast('Datos importados'); }
+    catch(e){ toast('Ese archivo no vale'); } };
+  r.readAsText(f);
+}
+
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function sheet(html){
+  const d=document.createElement('div'); d.className='sheet'; d.id='sheet';
+  d.innerHTML=`<div class="panel">${html}</div>`;
+  d.onclick=e=>{ if(e.target===d) cerrarSheet(); };
+  document.body.appendChild(d);
+}
+const cerrarSheet=()=>document.getElementById('sheet')?.remove();
+function toast(m){
+  document.querySelector('.toast')?.remove();
+  const t=document.createElement('div'); t.className='toast'; t.textContent=m;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),1800);
+}
+function render(){
+  if(vista==='menu') pintarMenu();
+  if(vista==='platos') pintarPlatos();
+  if(vista==='listas') pintarListas();
+  if(vista==='compra') pintarCompra();
+  if(vista==='ajustes'){
+    document.getElementById('shortcutName').value=D.shortcut||'';
+    const con=D.platos.filter(p=>p.ings.length).length;
+    document.getElementById('stats').textContent=`${D.platos.length} platos · ${con} con ingredientes · ${D.platos.length-con} pendientes`;
+  }
+}
+(async()=>{ const s=await store.get(); if(s) D={...D,...s}; render(); })();
+</script>
+</body>
+</html>
