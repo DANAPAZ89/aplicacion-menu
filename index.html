@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Menú">
+<meta name="theme-color" content="#1B2A20">
+<title>Menú semanal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#141A15;
+    --paper:#F1F2EC;
+    --pine:#1B2A20;
+    --leaf:#3E7A४C;
+    --leaf:#3E7A4C;
+    --plum:#7A2F46;
+    --citrus:#E7B426;
+    --line:#D6D8CE;
+    --muted:#6E7568;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:Karla,-apple-system,system-ui,sans-serif;
+    font-size:16px;line-height:1.45;
+    padding-bottom:calc(84px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:"Bricolage Grotesque",Georgia,serif;letter-spacing:-.02em;margin:0}
+  header{
+    position:sticky;top:0;z-index:20;background:var(--pine);color:#EFF2E9;
+    padding:calc(14px + env(safe-area-inset-top)) 16px 14px;
+  }
+  header h1{font-size:22px;font-weight:800}
+  header p{margin:2px 0 0;font-size:12px;color:#9DB09F;letter-spacing:.08em;text-transform:uppercase}
+  main{padding:16px;max-width:640px;margin:0 auto}
+  .hide{display:none!important}
+
+  nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;
+    background:var(--pine);padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+  }
+  nav button{
+    flex:1;background:none;border:0;color:#8FA391;font:inherit;font-size:11px;
+    padding:8px 2px;border-radius:10px;cursor:pointer;letter-spacing:.04em;
+  }
+  nav button .ic{display:block;font-size:19px;line-height:1.3}
+  nav button.on{color:var(--citrus);background:rgba(255,255,255,.07)}
+
+  .btn{
+    font:inherit;font-weight:700;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);
+    padding:11px 16px;border-radius:12px;cursor:pointer;
+  }
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn.wide{display:block;width:100%;text-align:center}
+  .btn.sm{padding:7px 11px;font-size:13px;border-radius:9px}
+  .btn:active{transform:translateY(1px)}
+  .btn.danger{background:var(--plum);border-color:var(--plum);color:#fff}
+
+  input,select,textarea{
+    font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;
+    background:#fff;color:var(--ink);width:100%;
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--leaf);outline-offset:1px;border-color:var(--leaf)}
+  label{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
+  .row{display:flex;gap:8px}
+  .row>*{flex:1}
+  .stack>*+*{margin-top:12px}
+
+  /* ---- Menú ---- */
+  .daycard{background:#fff;border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+  .daycard h3{
+    font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+    padding:9px 14px;background:#E7EAE1;color:var(--pine);
+  }
+  .slot{display:flex;align-items:center;gap:10px;padding:11px 14px;border-top:1px solid var(--line)}
+  .slot .tag{
+    font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);width:52px;flex:none;
+  }
+  .slot .name{flex:1;font-weight:500}
+  .slot .name.empty{color:var(--muted);font-style:italic}
+  .iconbtn{
+    border:0;background:#EDEFE7;border-radius:8px;width:32px;height:32px;flex:none;
+    font-size:15px;cursor:pointer;color:var(--pine);
+  }
+  .iconbtn:active{background:var(--citrus)}
+
+  /* ---- Platos ---- */
+  .dish{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+  .dish .top{display:flex;align-items:center;gap:8px}
+  .dish h3{font-size:17px;flex:1}
+  .pill{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:#E7EAE1;color:var(--pine)}
+  .pill.cena{background:#2C3A56;color:#DCE4F2}
+  .pill.ambos{background:var(--citrus);color:#3A2E05}
+  .ings{margin:8px 0 0;font-size:14px;color:var(--muted)}
+
+  /* ---- Compra: el ticket ---- */
+  .ticket{
+    background:#fff;border-radius:4px;padding:18px 16px 22px;
+    box-shadow:0 1px 0 var(--line),0 10px 24px -18px rgba(0,0,0,.5);
+    background-image:repeating-linear-gradient(-45deg,transparent 0 6px,#F1F2EC 6px 12px);
+    background-size:100% 8px;background-repeat:no-repeat;background-position:bottom;
+    padding-bottom:26px;
+  }
+  .sec{margin-top:16px}
+  .sec:first-child{margin-top:0}
+  .sec h3{
+    font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--plum);
+    border-bottom:1.5px dashed var(--line);padding-bottom:5px;margin-bottom:2px;
+  }
+  .item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #EEEFE8}
+  .item .box{
+    width:22px;height:22px;flex:none;border:1.5px solid var(--pine);border-radius:6px;
+    display:grid;place-items:center;font-size:13px;color:transparent;cursor:pointer;background:#fff;
+  }
+  .item.done .box{background:var(--pine);color:var(--citrus)}
+  .item .txt{flex:1;font-weight:500}
+  .item.done .txt{text-decoration:line-through;color:#A9AFA3;text-decoration-thickness:1.5px}
+  .item .qty{font-family:"Bricolage Grotesque",serif;font-weight:700;font-variant-numeric:tabular-nums;min-width:56px;text-align:right}
+  .item .from{display:block;font-size:11px;color:var(--muted);font-weight:400}
+  .stepper{display:flex;gap:4px}
+  .stepper button{width:26px;height:26px;border:1.5px solid var(--line);background:#fff;border-radius:7px;font-size:14px;cursor:pointer;line-height:1}
+
+  .empty{text-align:center;color:var(--muted);padding:36px 20px;border:2px dashed var(--line);border-radius:14px}
+  .empty strong{display:block;font-family:"Bricolage Grotesque",serif;font-size:18px;color:var(--ink);margin-bottom:4px}
+
+  /* ---- Hoja modal ---- */
+  .sheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;background:rgba(20,26,21,.45)}
+  .sheet .panel{
+    background:var(--paper);width:100%;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;
+    padding:18px 16px calc(20px + env(safe-area-inset-bottom));
+  }
+  .sheet h2{font-size:20px;margin-bottom:14px}
+  .sheethead{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .sheethead h2{flex:1;margin:0}
+  .ingrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+  .ingrow input[data-k="name"]{flex:3}
+  .ingrow input[data-k="qty"]{flex:1;min-width:56px}
+  .ingrow select{flex:2;min-width:0}
+  .pickitem{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:12px;margin-bottom:7px;font:inherit;cursor:pointer}
+  .pickitem b{font-family:"Bricolage Grotesque",serif}
+  .toast{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:60;
+    background:var(--pine);color:var(--citrus);padding:10px 16px;border-radius:99px;font-size:14px;font-weight:700;
+  }
+  .note{font-size:13px;color:var(--muted)}
+  hr{border:0;border-top:1.5px dashed var(--line);margin:18px 0}
+</style>
+</head>
+<body>
+
+<header>
+  <h1 id="title">Menú semanal</h1>
+  <p id="subtitle">Semana en marcha</p>
+</header>
+
+<main>
+  <!-- MENÚ -->
+  <section id="v-menu">
+    <button class="btn wide" onclick="generarSemana()">Generar semana nueva</button>
+    <div id="menuList" style="margin-top:14px"></div>
+  </section>
+
+  <!-- PLATOS -->
+  <section id="v-platos" class="hide">
+    <input id="buscador" placeholder="Buscar plato o ingrediente…" oninput="render()">
+    <button class="btn wide" style="margin:10px 0 14px" onclick="editarPlato(null)">+ Añadir plato</button>
+    <div id="platosList"></div>
+  </section>
+
+  <!-- LISTAS -->
+  <section id="v-listas" class="hide">
+    <p class="note">Listas fijas que se suman a la compra cuando las activas: desayunos, limpieza, básicos de la despensa…</p>
+    <button class="btn wide" style="margin:12px 0 14px" onclick="editarLista(null)">+ Nueva lista</button>
+    <div id="listasList"></div>
+  </section>
+
+  <!-- COMPRA -->
+  <section id="v-compra" class="hide">
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn" onclick="enviarRecordatorios()">Enviar a Recordatorios</button>
+      <button class="btn ghost" onclick="anadirExtra()">+ Artículo</button>
+    </div>
+    <div id="compraList"></div>
+    <hr>
+    <button class="btn ghost wide sm" onclick="reiniciarTachados()">Destachar todo</button>
+  </section>
+
+  <!-- AJUSTES -->
+  <section id="v-ajustes" class="hide" class="stack">
+    <h2>Copia de seguridad</h2>
+    <p class="note">Guarda o recupera todos tus platos y listas en un archivo. Sirve para pasarlos a otro iPhone por AirDrop.</p>
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost" onclick="exportar()">Exportar</button>
+      <button class="btn ghost" onclick="document.getElementById('imp').click()">Importar</button>
+    </div>
+    <input type="file" id="imp" accept="application/json" class="hide" onchange="importar(event)">
+    <hr>
+    <label for="shortcutName">Nombre del Atajo</label>
+    <input id="shortcutName" placeholder="Compra" oninput="D.shortcut=this.value;guardar()">
+    <p class="note" style="margin-top:6px">Debe coincidir exactamente con el nombre del Atajo que crees en la app Atajos.</p>
+  </section>
+</main>
+
+<nav>
+  <button id="t-menu" class="on" onclick="ir('menu')"><span class="ic">🗓</span>Menú</button>
+  <button id="t-platos" onclick="ir('platos')"><span class="ic">🍲</span>Platos</button>
+  <button id="t-listas" onclick="ir('listas')"><span class="ic">📌</span>Listas</button>
+  <button id="t-compra" onclick="ir('compra')"><span class="ic">🧾</span>Compra</button>
+  <button id="t-ajustes" onclick="ir('ajustes')"><span class="ic">⚙️</span>Ajustes</button>
+</nav>
+
+<script>
+/* ══════════ Almacenamiento (funciona dentro de Claude y en el iPhone) ══════════ */
+const KEY = 'menu-semanal-v1';
+const store = {
+  async get(){
+    try{
+      if(window.storage){ const r = await window.storage.get(KEY); return r ? JSON.parse(r.value) : null; }
+    }catch(e){ return null; }
+    const raw = localStorage.getItem(KEY); return raw ? JSON.parse(raw) : null;
+  },
+  async set(v){
+    const s = JSON.stringify(v);
+    try{ if(window.storage){ await window.storage.set(KEY, s); return; } }catch(e){}
+    localStorage.setItem(KEY, s);
+  }
+};
+
+/* ══════════ Datos ══════════ */
+const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const CATS = ['Frutas y verduras','Carnicería','Pescadería','Lácteos y huevos','Panadería','Despensa','Congelados','Bebidas','Limpieza y hogar','Otros'];
+const UNIDS = ['ud','g','kg','ml','l','lata','paquete','manojo','al gusto'];
+
+const uid = () => Math.random().toString(36).slice(2,9);
+const ing = (name,qty,unit,cat) => ({id:uid(),name,qty,unit,cat});
+
+let D = {
+  platos:[
+    {id:uid(),nombre:'Lentejas con verduras',tipo:'comida',ings:[ing('Lentejas',400,'g','Despensa'),ing('Zanahoria',2,'ud','Frutas y verduras'),ing('Cebolla',1,'ud','Frutas y verduras'),ing('Pimiento rojo',1,'ud','Frutas y verduras'),ing('Chorizo',100,'g','Carnicería')]},
+    {id:uid(),nombre:'Pollo al horno con patatas',tipo:'comida',ings:[ing('Muslos de pollo',6,'ud','Carnicería'),ing('Patata',800,'g','Frutas y verduras'),ing('Cebolla',1,'ud','Frutas y verduras'),ing('Limón',1,'ud','Frutas y verduras')]},
+    {id:uid(),nombre:'Merluza a la plancha con ensalada',tipo:'cena',ings:[ing('Merluza',4,'ud','Pescadería'),ing('Lechuga',1,'ud','Frutas y verduras'),ing('Tomate',3,'ud','Frutas y verduras')]},
+    {id:uid(),nombre:'Tortilla de patatas',tipo:'ambos',ings:[ing('Huevos',6,'ud','Lácteos y huevos'),ing('Patata',600,'g','Frutas y verduras'),ing('Cebolla',1,'ud','Frutas y verduras')]},
+    {id:uid(),nombre:'Crema de calabacín',tipo:'cena',ings:[ing('Calabacín',3,'ud','Frutas y verduras'),ing('Puerro',1,'ud','Frutas y verduras'),ing('Nata para cocinar',200,'ml','Lácteos y huevos')]},
+    {id:uid(),nombre:'Pasta a la boloñesa',tipo:'comida',ings:[ing('Macarrones',400,'g','Despensa'),ing('Carne picada',400,'g','Carnicería'),ing('Tomate triturado',1,'lata','Despensa'),ing('Cebolla',1,'ud','Frutas y verduras')]},
+    {id:uid(),nombre:'Revuelto de champiñones',tipo:'cena',ings:[ing('Huevos',4,'ud','Lácteos y huevos'),ing('Champiñones',250,'g','Frutas y verduras'),ing('Ajo',2,'ud','Frutas y verduras')]},
+  ],
+  listas:[
+    {id:uid(),nombre:'Desayunos',activa:true,items:[ing('Leche',4,'l','Lácteos y huevos'),ing('Café molido',1,'paquete','Despensa'),ing('Pan de molde',1,'paquete','Panadería'),ing('Plátanos',6,'ud','Frutas y verduras')]},
+    {id:uid(),nombre:'Limpieza',activa:false,items:[ing('Detergente',1,'ud','Limpieza y hogar'),ing('Bolsas de basura',1,'paquete','Limpieza y hogar')]},
+  ],
+  menu:{},          // { 'Lunes-comida': platoId }
+  extras:[],        // artículos sueltos añadidos a mano
+  tachados:{},      // { clave: true }
+  ajustes:{},       // { clave: cantidadManual }
+  shortcut:'Compra'
+};
+
+const guardar = () => store.set(D);
+
+/* ══════════ Navegación ══════════ */
+let vista = 'menu';
+function ir(v){
+  vista = v;
+  ['menu','platos','listas','compra','ajustes'].forEach(k=>{
+    document.getElementById('v-'+k).classList.toggle('hide', k!==v);
+    document.getElementById('t-'+k).classList.toggle('on', k===v);
+  });
+  const tit = {menu:['Menú semanal','Semana en marcha'],platos:['Platos','Tu recetario'],listas:['Listas fijas','Se suman a la compra'],compra:['La compra','Por secciones del súper'],ajustes:['Ajustes','Copias y Atajos']};
+  document.getElementById('title').textContent = tit[v][0];
+  document.getElementById('subtitle').textContent = tit[v][1];
+  window.scrollTo(0,0);
+  render();
+}
+
+/* ══════════ Menú ══════════ */
+const encaja = (p,turno) => p.tipo===turno || p.tipo==='ambos';
+
+function generarSemana(){
+  const nuevo = {};
+  ['comida','cena'].forEach(turno=>{
+    let bolsa = D.platos.filter(p=>encaja(p,turno));
+    let pool = [...bolsa].sort(()=>Math.random()-.5);
+    DIAS.forEach(d=>{
+      if(!pool.length) pool = [...bolsa].sort(()=>Math.random()-.5);
+      const p = pool.pop();
+      if(p) nuevo[d+'-'+turno] = p.id;
+    });
+  });
+  D.menu = nuevo; D.tachados = {}; D.ajustes = {};
+  guardar(); render(); toast('Semana generada');
+}
+
+function cambiarAlAzar(clave){
+  const turno = clave.split('-')[1];
+  const usados = Object.values(D.menu);
+  let opciones = D.platos.filter(p=>encaja(p,turno) && p.id!==D.menu[clave]);
+  const frescos = opciones.filter(p=>!usados.includes(p.id));
+  if(frescos.length) opciones = frescos;
+  if(!opciones.length) return toast('No hay más platos');
+  D.menu[clave] = opciones[Math.floor(Math.random()*opciones.length)].id;
+  guardar(); render();
+}
+
+function elegirPlato(clave){
+  const turno = clave.split('-')[1];
+  const lista = D.platos.filter(p=>encaja(p,turno));
+  sheet(`
+    <div class="sheethead"><h2>Elegir ${turno}</h2><button class="btn ghost sm" onclick="cerrarSheet()">Cerrar</button></div>
+    <input id="bp" placeholder="Buscar…" oninput="filtrarPick()">
+    <div id="picklist" style="margin-top:10px"></div>
+    <button class="btn ghost wide sm" style="margin-top:6px" onclick="quitarSlot('${clave}')">Dejar vacío</button>
+  `);
+  window._pick = {clave, lista};
+  filtrarPick();
+}
+function filtrarPick(){
+  const q = (document.getElementById('bp').value||'').toLowerCase();
+  const {clave, lista} = window._pick;
+  document.getElementById('picklist').innerHTML = lista
+    .filter(p=>p.nombre.toLowerCase().includes(q))
+    .map(p=>`<button class="pickitem" onclick="ponerPlato('${clave}','${p.id}')"><b>${esc(p.nombre)}</b><br><span class="note">${p.ings.map(i=>esc(i.name)).join(' · ')||'Sin ingredientes'}</span></button>`)
+    .join('') || '<p class="note">Ningún plato coincide.</p>';
+}
+function ponerPlato(clave,id){ D.menu[clave]=id; guardar(); cerrarSheet(); render(); }
+function quitarSlot(clave){ delete D.menu[clave]; guardar(); cerrarSheet(); render(); }
+
+function pintarMenu(){
+  const el = document.getElementById('menuList');
+  if(!Object.keys(D.menu).length){
+    el.innerHTML = '<div class="empty"><strong>Aún no hay semana</strong>Pulsa “Generar semana nueva” y luego cambia lo que no te encaje.</div>';
+    return;
+  }
+  el.innerHTML = DIAS.map(d=>`
+    <div class="daycard">
+      <h3>${d}</h3>
+      ${['comida','cena'].map(t=>{
+        const p = D.platos.find(x=>x.id===D.menu[d+'-'+t]);
+        return `<div class="slot">
+          <span class="tag">${t}</span>
+          <span class="name ${p?'':'empty'}">${p?esc(p.nombre):'—'}</span>
+          <button class="iconbtn" onclick="cambiarAlAzar('${d}-${t}')" aria-label="Otro plato">🎲</button>
+          <button class="iconbtn" onclick="elegirPlato('${d}-${t}')" aria-label="Elegir plato">✎</button>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+/* ══════════ Platos ══════════ */
+function pintarPlatos(){
+  const q = (document.getElementById('buscador').value||'').toLowerCase();
+  const lista = D.platos.filter(p =>
+    p.nombre.toLowerCase().includes(q) || p.ings.some(i=>i.name.toLowerCase().includes(q))
+  );
+  document.getElementById('platosList').innerHTML = lista.length ? lista.map(p=>`
+    <div class="dish">
+      <div class="top">
+        <h3>${esc(p.nombre)}</h3>
+        <span class="pill ${p.tipo}">${p.tipo}</span>
+        <button class="iconbtn" onclick="editarPlato('${p.id}')" aria-label="Editar">✎</button>
+      </div>
+      <p class="ings">${p.ings.map(i=>`${esc(i.name)} ${i.qty}${i.unit==='ud'?'':' '+i.unit}`).join(' · ')||'Sin ingredientes'}</p>
+    </div>`).join('')
+    : '<div class="empty"><strong>Nada por aquí</strong>Ningún plato coincide con la búsqueda.</div>';
+}
+
+function editarPlato(id){
+  const p = D.platos.find(x=>x.id===id) || {id:null,nombre:'',tipo:'comida',ings:[]};
+  window._ed = JSON.parse(JSON.stringify(p));
+  if(!window._ed.ings.length) window._ed.ings.push(ing('',1,'ud','Frutas y verduras'));
+  sheet(`
+    <div class="sheethead"><h2>${id?'Editar plato':'Nuevo plato'}</h2><button class="btn ghost sm" onclick="cerrarSheet()">Cerrar</button></div>
+    <div class="stack">
+      <div><label>Nombre</label><input id="e-nombre" value="${esc(p.nombre)}" placeholder="Lentejas con verduras"></div>
+      <div><label>¿Cuándo se come?</label>
+        <select id="e-tipo">
+          <option value="comida" ${p.tipo==='comida'?'selected':''}>Comida</option>
+          <option value="cena" ${p.tipo==='cena'?'selected':''}>Cena</option>
+          <option value="ambos" ${p.tipo==='ambos'?'selected':''}>Cualquiera</option>
+        </select>
+      </div>
+      <div><label>Ingredientes</label><div id="e-ings"></div>
+        <button class="btn ghost sm" style="margin-top:6px" onclick="addIng()">+ Ingrediente</button>
+      </div>
+      <button class="btn wide" onclick="guardarPlato('${id||''}')">Guardar plato</button>
+      ${id?`<button class="btn danger wide sm" onclick="borrarPlato('${id}')">Eliminar plato</button>`:''}
+    </div>
+  `);
+  pintarIngs();
+}
+function pintarIngs(){
+  document.getElementById('e-ings').innerHTML = window._ed.ings.map((i,n)=>`
+    <div class="ingrow">
+      <input data-k="name" value="${esc(i.name)}" placeholder="Ingrediente" oninput="setIng(${n},'name',this.value)">
+      <input data-k="qty" type="number" inputmode="decimal" min="0" step="any" value="${i.qty}" oninput="setIng(${n},'qty',this.value)">
+      <select onchange="setIng(${n},'unit',this.value)">${UNIDS.map(u=>`<option ${i.unit===u?'selected':''}>${u}</option>`).join('')}</select>
+      <select onchange="setIng(${n},'cat',this.value)">${CATS.map(c=>`<option ${i.cat===c?'selected':''}>${c}</option>`).join('')}</select>
+      <button class="iconbtn" onclick="delIng(${n})" aria-label="Quitar">×</button>
+    </div>`).join('');
+}
+const setIng = (n,k,v) => { window._ed.ings[n][k] = k==='qty' ? (parseFloat(v)||0) : v; };
+const addIng = () => { window._ed.ings.push(ing('',1,'ud','Frutas y verduras')); pintarIngs(); };
+const delIng = n => { window._ed.ings.splice(n,1); pintarIngs(); };
+
+function guardarPlato(id){
+  const nombre = document.getElementById('e-nombre').value.trim();
+  if(!nombre) return toast('Ponle un nombre');
+  const plato = {
+    id: id || uid(),
+    nombre,
+    tipo: document.getElementById('e-tipo').value,
+    ings: window._ed.ings.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()}))
+  };
+  const n = D.platos.findIndex(x=>x.id===id);
+  if(n>=0) D.platos[n]=plato; else D.platos.push(plato);
+  guardar(); cerrarSheet(); render(); toast('Plato guardado');
+}
+function borrarPlato(id){
+  if(!confirm('¿Eliminar este plato? También saldrá del menú.')) return;
+  D.platos = D.platos.filter(p=>p.id!==id);
+  Object.keys(D.menu).forEach(k=>{ if(D.menu[k]===id) delete D.menu[k]; });
+  guardar(); cerrarSheet(); render();
+}
+
+/* ══════════ Listas fijas ══════════ */
+function pintarListas(){
+  document.getElementById('listasList').innerHTML = D.listas.length ? D.listas.map(l=>`
+    <div class="dish">
+      <div class="top">
+        <div class="box item ${l.activa?'done':''}" style="padding:0;border:0">
+          <span class="box" onclick="toggleLista('${l.id}')">✓</span>
+        </div>
+        <h3 style="margin-left:6px">${esc(l.nombre)}</h3>
+        <button class="iconbtn" onclick="editarLista('${l.id}')" aria-label="Editar">✎</button>
+      </div>
+      <p class="ings">${l.items.map(i=>esc(i.name)).join(' · ')||'Vacía'}</p>
+    </div>`).join('')
+    : '<div class="empty"><strong>Sin listas fijas</strong>Crea una para lo que compras todas las semanas.</div>';
+}
+const toggleLista = id => { const l=D.listas.find(x=>x.id===id); l.activa=!l.activa; guardar(); render(); };
+
+function editarLista(id){
+  const l = D.listas.find(x=>x.id===id) || {id:null,nombre:'',activa:true,items:[]};
+  window._ed = JSON.parse(JSON.stringify(l));
+  window._ed.ings = window._ed.items || [];
+  if(!window._ed.ings.length) window._ed.ings.push(ing('',1,'ud','Despensa'));
+  sheet(`
+    <div class="sheethead"><h2>${id?'Editar lista':'Nueva lista'}</h2><button class="btn ghost sm" onclick="cerrarSheet()">Cerrar</button></div>
+    <div class="stack">
+      <div><label>Nombre de la lista</label><input id="e-nombre" value="${esc(l.nombre)}" placeholder="Desayunos"></div>
+      <div><label>Artículos</label><div id="e-ings"></div>
+        <button class="btn ghost sm" style="margin-top:6px" onclick="addIng()">+ Artículo</button>
+      </div>
+      <button class="btn wide" onclick="guardarLista('${id||''}')">Guardar lista</button>
+      ${id?`<button class="btn danger wide sm" onclick="borrarLista('${id}')">Eliminar lista</button>`:''}
+    </div>
+  `);
+  pintarIngs();
+}
+function guardarLista(id){
+  const nombre = document.getElementById('e-nombre').value.trim();
+  if(!nombre) return toast('Ponle un nombre');
+  const prev = D.listas.find(x=>x.id===id);
+  const lista = {id:id||uid(), nombre, activa: prev ? prev.activa : true,
+    items: window._ed.ings.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()}))};
+  const n = D.listas.findIndex(x=>x.id===id);
+  if(n>=0) D.listas[n]=lista; else D.listas.push(lista);
+  guardar(); cerrarSheet(); render(); toast('Lista guardada');
+}
+function borrarLista(id){
+  if(!confirm('¿Eliminar esta lista?')) return;
+  D.listas = D.listas.filter(l=>l.id!==id);
+  guardar(); cerrarSheet(); render();
+}
+
+/* ══════════ La compra ══════════ */
+function calcularCompra(){
+  const acc = {}; // clave: nombre|unidad
+  const sumar = (i, origen) => {
+    const k = i.name.toLowerCase()+'|'+i.unit;
+    if(!acc[k]) acc[k] = {clave:k, name:i.name, unit:i.unit, cat:i.cat, qty:0, origenes:new Set()};
+    acc[k].qty += Number(i.qty)||0;
+    acc[k].origenes.add(origen);
+  };
+  Object.entries(D.menu).forEach(([slot,pid])=>{
+    const p = D.platos.find(x=>x.id===pid);
+    if(p) p.ings.forEach(i=>sumar(i, p.nombre));
+  });
+  D.listas.filter(l=>l.activa).forEach(l=> l.items.forEach(i=>sumar(i, l.nombre)));
+  D.extras.forEach(i=>sumar(i,'Añadido a mano'));
+
+  return Object.values(acc).map(x=>({
+    ...x,
+    qty: D.ajustes[x.clave] !== undefined ? D.ajustes[x.clave] : x.qty,
+    origenes: [...x.origenes]
+  }));
+}
+
+function pintarCompra(){
+  const items = calcularCompra();
+  const el = document.getElementById('compraList');
+  if(!items.length){
+    el.innerHTML = '<div class="empty"><strong>Lista vacía</strong>Genera un menú o activa alguna lista fija.</div>';
+    return;
+  }
+  const porCat = {};
+  items.forEach(i=>{ (porCat[i.cat] ||= []).push(i); });
+  el.innerHTML = '<div class="ticket">' + CATS.filter(c=>porCat[c]).map(c=>`
+    <div class="sec">
+      <h3>${c}</h3>
+      ${porCat[c].sort((a,b)=>a.name.localeCompare(b.name)).map(i=>{
+        const done = !!D.tachados[i.clave];
+        return `<div class="item ${done?'done':''}">
+          <span class="box" onclick="tachar('${i.clave}')">✓</span>
+          <span class="txt" onclick="tachar('${i.clave}')">${esc(i.name)}
+            <span class="from">${i.origenes.map(esc).join(', ')}</span>
+          </span>
+          <span class="stepper">
+            <button onclick="ajustar('${i.clave}',-1,${i.qty})">−</button>
+            <button onclick="ajustar('${i.clave}',1,${i.qty})">+</button>
+          </span>
+          <span class="qty">${redondea(i.qty)} ${i.unit==='ud'?'':esc(i.unit)}</span>
+        </div>`;
+      }).join('')}
+    </div>`).join('') + '</div>';
+}
+const redondea = n => Math.round(n*100)/100;
+const tachar = k => { D.tachados[k] = !D.tachados[k]; guardar(); pintarCompra(); };
+function ajustar(k, delta, actual){
+  const paso = actual >= 100 ? 50 : 1;
+  D.ajustes[k] = Math.max(0, redondea(actual + delta*paso));
+  guardar(); pintarCompra();
+}
+const reiniciarTachados = () => { D.tachados = {}; guardar(); pintarCompra(); };
+
+function anadirExtra(){
+  window._ed = {ings:[ing('',1,'ud','Otros')]};
+  sheet(`
+    <div class="sheethead"><h2>Añadir a la compra</h2><button class="btn ghost sm" onclick="cerrarSheet()">Cerrar</button></div>
+    <div id="e-ings"></div>
+    <button class="btn ghost sm" style="margin:6px 0 12px" onclick="addIng()">+ Otro más</button>
+    <button class="btn wide" onclick="guardarExtras()">Añadir a la lista</button>
+    ${D.extras.length?`<button class="btn ghost wide sm" style="margin-top:8px" onclick="limpiarExtras()">Quitar los ${D.extras.length} añadidos a mano</button>`:''}
+  `);
+  pintarIngs();
+}
+function guardarExtras(){
+  const nuevos = window._ed.ings.filter(i=>i.name.trim()).map(i=>({...i,name:i.name.trim()}));
+  if(!nuevos.length) return toast('Escribe algo primero');
+  D.extras.push(...nuevos); guardar(); cerrarSheet(); render(); toast('Añadido');
+}
+const limpiarExtras = () => { D.extras=[]; guardar(); cerrarSheet(); render(); };
+
+/* ══════════ Recordatorios ══════════ */
+function textoCompra(){
+  const items = calcularCompra().filter(i=>!D.tachados[i.clave]);
+  const porCat = {};
+  items.forEach(i=>{ (porCat[i.cat] ||= []).push(i); });
+  return CATS.filter(c=>porCat[c]).flatMap(c =>
+    porCat[c].sort((a,b)=>a.name.localeCompare(b.name))
+      .map(i=>`${c} · ${i.name} — ${redondea(i.qty)}${i.unit==='ud'?'':' '+i.unit}`)
+  ).join('\n');
+}
+function enviarRecordatorios(){
+  const txt = textoCompra();
+  if(!txt) return toast('No hay nada que enviar');
+  const nombre = D.shortcut || 'Compra';
+  window.location.href = `shortcuts://run-shortcut?name=${encodeURIComponent(nombre)}&input=text&text=${encodeURIComponent(txt)}`;
+}
+
+/* ══════════ Copias ══════════ */
+function exportar(){
+  const blob = new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'menu-semanal.json';
+  a.click();
+}
+function importar(ev){
+  const f = ev.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const d = JSON.parse(r.result);
+      if(!d.platos) throw 0;
+      D = {...D, ...d}; guardar(); render(); toast('Datos importados');
+    }catch(e){ toast('Ese archivo no vale'); }
+  };
+  r.readAsText(f);
+}
+
+/* ══════════ Utilidades ══════════ */
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function sheet(html){
+  const d = document.createElement('div');
+  d.className = 'sheet'; d.id = 'sheet';
+  d.innerHTML = `<div class="panel">${html}</div>`;
+  d.onclick = e => { if(e.target === d) cerrarSheet(); };
+  document.body.appendChild(d);
+}
+const cerrarSheet = () => document.getElementById('sheet')?.remove();
+function toast(msg){
+  document.querySelector('.toast')?.remove();
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 1800);
+}
+
+function render(){
+  if(vista==='menu') pintarMenu();
+  if(vista==='platos') pintarPlatos();
+  if(vista==='listas') pintarListas();
+  if(vista==='compra') pintarCompra();
+  if(vista==='ajustes') document.getElementById('shortcutName').value = D.shortcut || '';
+}
+
+(async () => {
+  const saved = await store.get();
+  if(saved) D = {...D, ...saved};
+  render();
+})();
+</script>
+</body>
+</html>
