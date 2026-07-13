@@ -40,7 +40,6 @@
   .note{font-size:13px;color:var(--muted)}
   hr{border:0;border-top:1.5px dashed var(--line);margin:18px 0}
 
-  .panelgen{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:13px}
   .daycard{background:#fff;border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
   .daycard h3{font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:9px 14px;background:#E7EAE1;color:var(--pine)}
   .turno{border-top:1px solid var(--line);padding:9px 12px 11px}
@@ -97,18 +96,7 @@
 
 <main>
   <section id="v-menu">
-    <div class="panelgen">
-      <div class="row">
-        <div><label>Platos por comida</label><select id="g-comida" onchange="setGen('comida',this.value)"></select></div>
-        <div><label>Platos por cena</label><select id="g-cena" onchange="setGen('cena',this.value)"></select></div>
-      </div>
-      <p class="note" style="margin:12px 0 8px">De los 7 días, cuántos salen del catálogo con receta (el resto, de tu histórico):</p>
-      <div class="row">
-        <div><label>Comidas con receta</label><select id="g-recComida" onchange="setGen('recComida',this.value)"></select></div>
-        <div><label>Cenas con receta</label><select id="g-recCena" onchange="setGen('recCena',this.value)"></select></div>
-      </div>
-    </div>
-    <button class="btn wide" style="margin-top:12px" onclick="generarSemana()">Generar semana nueva</button>
+    <button class="btn wide" onclick="abrirGenerador()">Generar semana nueva</button>
     <div id="menuList" style="margin-top:14px"></div>
   </section>
 
@@ -151,6 +139,14 @@
         <p class="note" style="margin-top:6px">Debe coincidir con el nombre del Atajo en la app Atajos.</p>
       </div>
       <hr>
+      <div><label>Qué se envía a Recordatorios</label>
+        <select id="formato" onchange="D.formato=this.value;guardar()">
+          <option value="cantidad">Cebolla (3 ud)</option>
+          <option value="solo">Cebolla — solo el nombre</option>
+        </select>
+        <p class="note" style="margin-top:6px">Si Recordatorios no te clasifica bien los artículos en las secciones del súper, prueba con “solo el nombre”.</p>
+      </div>
+      <hr>
       <p class="note" id="stats"></p>
     </div>
   </section>
@@ -190,7 +186,7 @@ let D={
     ...SEED.map(d=>({id:uid(),nombre:d.n,tipo:d.t,rol:d.r,cocina:'',ings:[]}))
   ],
   listas: [{id:uid(),nombre:'Desayunos',activa:false,items:[ing('Leche',4,'l','Lácteos y huevos'),ing('Café molido',1,'paquete','Despensa'),ing('Pan de molde',1,'paquete','Panadería')]}],
-  menu:{}, extras:[], tachados:{}, ajustes:{}, shortcut:'Compra',
+  menu:{}, extras:[], tachados:{}, ajustes:{}, shortcut:'Compra', formato:'cantidad',
   gen:{comida:2, cena:2, recComida:7, recCena:7}
 };
 const guardar=()=>store.set(D);
@@ -220,12 +216,14 @@ function elegirAlAzar(turno,rol,excluir,soloReceta){
   return c.length ? c[Math.floor(Math.random()*c.length)].id : null;
 }
 const ROLES=['primero','segundo','any','any'];
-const setGen=(k,v)=>{ D.gen[k]=parseInt(v); guardar(); render(); };
 const barajar=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
 
 function generarSemana(){
-  if(!D.platos.some(p=>p.ings.length) && (D.gen.recComida||D.gen.recCena))
-    return toast('Ningún plato tiene ingredientes');
+  ['comida','cena','recComida','recCena'].forEach(k=>{
+    const el=document.getElementById('g-'+k);
+    if(el) D.gen[k]=parseInt(el.value);
+  });
+  cerrarSheet();
   const nuevo={}, usados=[];
   // Sorteamos qué días llevan receta, para cada turno por separado
   const conReceta={
@@ -273,18 +271,25 @@ function ponerPlato(id){
   if(i===null) D.menu[k].push(id); else D.menu[k][i]=id;
   guardar(); cerrarSheet(); render();
 }
-function pintarPanelGen(){
-  ['comida','cena'].forEach(t=>{
-    document.getElementById('g-'+t).innerHTML=[1,2,3].map(n=>
-      `<option value="${n}" ${D.gen[t]===n?'selected':''}>${n} plato${n>1?'s':''}</option>`).join('');
-  });
-  ['recComida','recCena'].forEach(k=>{
-    document.getElementById('g-'+k).innerHTML=[0,1,2,3,4,5,6,7].map(n=>
-      `<option value="${n}" ${D.gen[k]===n?'selected':''}>${n} de 7</option>`).join('');
-  });
+const opts=(arr,sel,suf)=>arr.map(n=>`<option value="${n}" ${sel===n?'selected':''}>${n}${suf(n)}</option>`).join('');
+function abrirGenerador(){
+  const conReceta=D.platos.filter(p=>p.ings.length).length;
+  sheet(`<div class="sheethead"><h2>Generar semana</h2><button class="btn ghost sm" onclick="cerrarSheet()">Cerrar</button></div>
+  <div class="stack">
+    <div class="row">
+      <div><label>Platos por comida</label><select id="g-comida">${opts([1,2,3],D.gen.comida,n=>' plato'+(n>1?'s':''))}</select></div>
+      <div><label>Platos por cena</label><select id="g-cena">${opts([1,2,3],D.gen.cena,n=>' plato'+(n>1?'s':''))}</select></div>
+    </div>
+    <p class="note">De los 7 días, ¿cuántos salen del catálogo con receta (${conReceta} platos con ingredientes)? El resto se rellenan con tu histórico.</p>
+    <div class="row">
+      <div><label>Comidas con receta</label><select id="g-recComida">${opts([0,1,2,3,4,5,6,7],D.gen.recComida,()=>' de 7')}</select></div>
+      <div><label>Cenas con receta</label><select id="g-recCena">${opts([0,1,2,3,4,5,6,7],D.gen.recCena,()=>' de 7')}</select></div>
+    </div>
+    <button class="btn wide" onclick="generarSemana()">Generar</button>
+    <p class="note">Se sustituye la semana actual.</p>
+  </div>`);
 }
 function pintarMenu(){
-  pintarPanelGen();
   const el=document.getElementById('menuList');
   if(!Object.keys(D.menu).length){
     el.innerHTML='<div class="empty"><strong>Aún no hay semana</strong>Pulsa “Generar semana nueva”. Luego cambia, quita o añade platos en cada hueco.</div>';
@@ -471,9 +476,11 @@ const limpiarExtras=()=>{ D.extras=[]; guardar(); cerrarSheet(); render(); };
 function enviarRecordatorios(){
   const items=calcularCompra().filter(i=>!D.tachados[i.clave]);
   if(!items.length) return toast('No hay nada que enviar');
-  const porCat={}; items.forEach(i=>{ (porCat[i.cat] ||= []).push(i); });
-  const txt=CATS.filter(c=>porCat[c]).flatMap(c=>porCat[c].sort((a,b)=>a.name.localeCompare(b.name))
-    .map(i=>`${c} · ${i.name} — ${redondea(i.qty)}${i.unit==='ud'?'':' '+i.unit}`)).join('\n');
+  // Sin prefijo de categoría: Recordatorios clasifica leyendo el nombre del artículo.
+  const linea=i=> D.formato==='solo'
+    ? i.name
+    : `${i.name} (${redondea(i.qty)}${i.unit==='ud'?'':' '+i.unit})`;
+  const txt=items.sort((a,b)=>a.name.localeCompare(b.name)).map(linea).join('\n');
   window.location.href=`shortcuts://run-shortcut?name=${encodeURIComponent(D.shortcut||'Compra')}&input=text&text=${encodeURIComponent(txt)}`;
 }
 
@@ -509,11 +516,18 @@ function render(){
   if(vista==='compra') pintarCompra();
   if(vista==='ajustes'){
     document.getElementById('shortcutName').value=D.shortcut||'';
+    document.getElementById('formato').value=D.formato||'cantidad';
     const con=D.platos.filter(p=>p.ings.length).length;
     document.getElementById('stats').textContent=`${D.platos.length} platos · ${con} con receta completa · ${D.platos.length-con} sin ingredientes`;
   }
 }
-(async()=>{ const s=await store.get(); if(s) D={...D,...s}; render(); })();
+const GEN_DEF={comida:2,cena:2,recComida:7,recCena:7};
+(async()=>{
+  const s=await store.get();
+  if(s) D={...D,...s};
+  D.gen={...GEN_DEF,...(D.gen||{})};
+  render();
+})();
 </script>
 </body>
 </html>
